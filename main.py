@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from pymongo import MongoClient
 from pyngrok import ngrok
 
-
+ngrok.set_auth_token("346fQweFiLMpbXUowR5S1k4d2GJ_2RUvwo4VyW4giE1BQ18ew")
 app = Flask(__name__)
 developer_ip = '192.168.2.163'
 
@@ -86,6 +86,14 @@ def index():
 </head>
 <body>
 <div class="wrap">
+ <div class="notes" style="background:#222; padding:10px; margin-bottom:20px; border-left:4px solid #0f0;">
+    <iframe 
+        src="https://raw.githubusercontent.com/dharmikvxb/Test1/refs/heads/main/feed.txt" 
+        style="width:100%; height:200px; background:#222; color:#0f0; border:none;" 
+        sandbox="allow-scripts allow-same-origin">
+    </iframe>
+</div>
+
 <h1>Feed Status</h1>
 <div>Updated {{ updated_at }}</div>
 
@@ -117,6 +125,7 @@ def index():
     return render_template_string(html, grouped=grouped, updated_at=updated_at)
 
 if __name__ == "__main__":
+    # Only start ngrok in the first process
     public_url = ngrok.connect(5800)
     print(" * ngrok tunnel URL:", public_url)
-    app.run(host="0.0.0.0",port=5800)
+    app.run(host="0.0.0.0", port=5800, debug=True,use_reloader=True)

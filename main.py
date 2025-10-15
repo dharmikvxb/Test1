@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from pymongo import MongoClient
 
 
+
 app = Flask(__name__)
 developer_ip = '192.168.2.163'
 
@@ -116,4 +117,6 @@ def index():
     return render_template_string(html, grouped=grouped, updated_at=updated_at)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0",port="5800")
+    public_url = ngrok.connect(5800)
+    print(" * ngrok tunnel URL:", public_url)
+    app.run(host="0.0.0.0",port=5800)

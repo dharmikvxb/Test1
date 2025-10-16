@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from pymongo import MongoClient
 
 
-ngrok.set_auth_token("346fQweFiLMpbXUowR5S1k4d2GJ_2RUvwo4VyW4giE1BQ18ew")
 app = Flask(__name__)
 developer_ip = '192.168.2.163'
 

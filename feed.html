@@ -1,1 +1,76 @@
-GOOOD MORNING  Monday
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Table Display</title>
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    color: #0f0;
+    font-family: monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  table {
+    border-collapse: collapse;
+    background: #111;
+    color: #0f0;
+    box-shadow: 0 0 10px #0f08;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  th, td {
+    padding: 10px 20px;
+    border: 1px solid #0f03;
+    text-align: left;
+  }
+
+  th {
+    background: #0f02;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  tr:hover {
+    background: #0f05;
+  }
+</style>
+</head>
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th>Message</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Monday</td>
+        <td>Good Morning 🌞</td>
+      </tr>
+      <tr>
+        <td>Tuesday</td>
+        <td>Keep Going 💪</td>
+      </tr>
+      <tr>
+        <td>Wednesday</td>
+        <td>Halfway There 🏁</td>
+      </tr>
+      <tr>
+        <td>Thursday</td>
+        <td>Stay Focused 🎯</td>
+      </tr>
+      <tr>
+        <td>Friday</td>
+        <td>Weekend Loading ⏳</td>
+      </tr>
+    </tbody>
+  </table>
+</body>
+</html>

@@ -2,7 +2,7 @@
 from flask import Flask, render_template_string
 from datetime import datetime, timedelta
 from pymongo import MongoClient
-from pyngrok import ngrok
+
 
 ngrok.set_auth_token("346fQweFiLMpbXUowR5S1k4d2GJ_2RUvwo4VyW4giE1BQ18ew")
 app = Flask(__name__)
@@ -125,7 +125,4 @@ def index():
     return render_template_string(html, grouped=grouped, updated_at=updated_at)
 
 if __name__ == "__main__":
-    # Only start ngrok in the first process
-    public_url = ngrok.connect(5800)
-    print(" * ngrok tunnel URL:", public_url)
     app.run(host="0.0.0.0", port=5800, debug=True,use_reloader=True)

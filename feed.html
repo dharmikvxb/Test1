@@ -29,8 +29,22 @@
 </style>
 </head>
 <body>
-  <div class="message">
-  PUEBLO PL & PUEBLO PDP MUST BE ACTIVE IN ALL THE PCs
-  </div>
+  <div class="message">Loading message...</div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const messageDiv = document.querySelector(".message");
+      try {
+        const response = await fetch("https://dharmikvxb.github.io/Test1/feed.txt");
+        if (!response.ok) throw new Error("Failed to fetch feed");
+        
+        const text = (await response.text()).trim();
+        messageDiv.textContent = text || "Feed loaded but empty.";
+      } catch (err) {
+        console.error(err);
+        messageDiv.textContent = "Error loading remote feed.";
+      }
+    });
+  </script>
 </body>
 </html>

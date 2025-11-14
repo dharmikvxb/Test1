@@ -1,0 +1,53 @@
+agent_tables = main_response.xpath('//*[contains(@class, "entity_conf_table_header")]/ancestor::table[1]')
+                if agent_tables:
+                    all_data = {}
+                    for agent_table in agent_tables:
+                        header = agent_table.xpath('.//*[@class="entity_conf_table_header"]/text()').get()
+                        if header:
+                            header = header.strip().lower().replace(' ', '_')
+                        else:
+                            continue
+                        table_data = {}
+                        for row in agent_table.xpath('.//tr'):
+                            th_list = row.xpath('.//th')
+                            td_list = row.xpath('.//td')
+
+                            if not td_list:
+                                continue
+
+                            # Pattern 1: Multiple th/td pairs in same row (e.g., Status | Good Standing | Formation date | 11/18/2016)
+                            if th_list and len(th_list) > 1:
+                                for i in range(len(th_list)):
+                                    if i < len(td_list):
+                                        key_raw = th_list[i].xpath('string(.)').get().strip()
+                                        value_raw = td_list[i].xpath('string(.)').get().strip()
+                                        if key_raw or value_raw:
+                                            table_data[key_raw] = value_raw
+
+                            # Pattern 2: Single th/td pair
+                            elif th_list:
+                                key_raw = th_list[0].xpath('string(.)').get().strip()
+                                value_raw = td_list[0].xpath('string(.)').get().strip()
+                                if key_raw or value_raw:
+                                    table_data[key_raw] = value_raw
+
+                            # Pattern 3: Only td elements (paired)
+                            else:
+                                for i in range(0, len(td_list), 2):
+                                    if i + 1 < len(td_list):
+                                        key_raw = td_list[i].xpath('string(.)').get().strip()
+                                        value_raw = td_list[i + 1].xpath('string(.)').get().strip()
+                                        if key_raw or value_raw:
+                                            table_data[key_raw] = value_raw
+
+                        if table_data:
+                            all_data[header] = table_data
+
+                        if table_data:
+                            table_data['page_save'] = f"{id_number}.html"
+                            table_data['id_number'] = id_number
+                            all_data[header] = table_data
+                            update_pdp_status(db_id, {'status': 'done'})
+                    all_data = clean_dict(all_data)
+                    for table_name, data in all_data.items():
+                        InsertItem(data=data, retry=0, parcel_number=str(id_number), table_name=table_name)

@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Health Status Dashboard</title>
+    <style>
+        :root {
+            /* Deep black and neon green color scheme */
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --bg-tertiary: #1a1a1a;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent: #00ff00;
+            --accent-dim: #00cc00;
+            --warn: #ffaa00;
+            --error: #ff3333;
+            --border: #2a2a2a;
+            --radius: 6px;
+            --font-mono: 'Courier New', monospace;
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            letter-spacing: 0.3px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 16px;
+            /* reduced padding from 28px to 16px */
+        }
+
+        /* Header with better typography and accent styling */
+        header {
+            margin-bottom: 20px;
+            /* reduced margin-bottom from 36px to 20px */
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 12px;
+            /* reduced padding-bottom from 16px to 12px */
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .timestamp {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-family: var(--font-mono);
+            letter-spacing: 0.5px;
+        }
+
+        /* Enhanced filter section with better spacing and styling */
+        .filters-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px;
+            /* reduced padding from 20px to 14px */
+            margin-bottom: 16px;
+            /* reduced margin-bottom from 28px to 16px */
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            /* reduced gap from 16px to 12px */
+            align-items: flex-end;
+            box-shadow: inset 0 0 20px rgba(0, 255, 0, 0.05);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: var(--font-mono);
+        }
+
+        select,
+        input[type="checkbox"] {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            border-radius: var(--radius);
+            padding: 10px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font-mono);
+        }
+
+        select:hover,
+        select:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Enhanced checkbox styling with neon green visual feedback */
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            /* reduced padding from 10px 16px to 8px 12px */
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper:hover {
+            border-color: var(--accent);
+        }
+
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--bg-secondary);
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        input[type="checkbox"]:hover {
+            border-color: var(--accent);
+        }
+
+        input[type="checkbox"]:checked {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #000000;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .checkbox-wrapper label {
+            cursor: pointer;
+            margin: 0;
+            color: var(--text-primary);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            font-family: var(--font-mono);
+        }
+
+        /* Responsive grid: 3 columns desktop, 2 columns tablet, 1 column mobile */
+        .feeds-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            /* reduced gap from 20px to 12px */
+            margin-bottom: 16px;
+            /* reduced margin-bottom from 28px to 16px */
+        }
+
+        @media (max-width: 1200px) {
+            .feeds-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .feeds-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters-section {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            select {
+                width: 100%;
+            }
+
+            .checkbox-wrapper {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .filter-group {
+                min-width: 100%;
+            }
+        }
+
+        /* Feed card with sharper corners and enhanced visual hierarchy */
+        .feed-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            /* keeping overflow: hidden for card borders, but removing scroll from body */
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .feed-card:hover {
+            border-color: var(--accent);
+            background: rgba(0, 255, 0, 0.02);
+        }
+
+        .feed-header {
+            background: linear-gradient(135deg, rgba(0, 255, 0, 0.1) 0%, rgba(0, 255, 0, 0.02) 100%);
+            padding: 12px;
+            /* reduced padding from 16px to 12px */
+            border-bottom: 2px solid var(--accent);
+            border-radius: var(--radius) var(--radius) 0 0;
+        }
+
+        .feed-title {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: var(--font-mono);
+        }
+
+        .feed-body {
+            padding: 0;
+            /* removed overflow-x: auto for full display without scroll */
+            flex-grow: 1;
+            overflow: visible;
+        }
+
+        /* Table styling for developer-friendly appearance */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            font-family: var(--font-mono);
+            table-layout: fixed;
+            /* added table-layout: fixed to prevent column width variations */
+        }
+
+        thead {
+            background: rgba(0, 255, 0, 0.05);
+            border-bottom: 1px solid var(--accent);
+        }
+
+        th {
+            padding: 10px 8px;
+            /* reduced padding from 14px 14px to 10px 8px */
+            text-align: left;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        td {
+            padding: 10px 8px;
+            /* reduced padding from 14px 14px to 10px 8px */
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 255, 0, 0.06);
+        }
+
+        /* Add specific column widths to control data display */
+        th:nth-child(1),
+        td:nth-child(1) {
+            width: 28%;
+            max-width: 150px;
+        }
+
+        th:nth-child(2),
+        td:nth-child(2) {
+            width: 32%;
+            max-width: 160px;
+        }
+
+        th:nth-child(3),
+        td:nth-child(3) {
+            width: 20%;
+            max-width: 100px;
+        }
+
+        th:nth-child(4),
+        td:nth-child(4) {
+            width: 20%;
+            max-width: 80px;
+            text-align: center;
+        }
+
+        code {
+            color: var(--accent);
+            background: rgba(0, 255, 0, 0.05);
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Status badges with only blinking circle */
+        .status-badge {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            /* changed from 2px to 50% for perfect circle */
+        }
+
+        .status.alive .status-badge {
+            background: var(--accent);
+            animation: pulse-alive 2.5s ease-in-out infinite;
+        }
+
+        .status.warn .status-badge {
+            background: var(--warn);
+        }
+
+        .status.dead .status-badge {
+            background: var(--error);
+        }
+
+        /* Animation for active/alive status pulsing */
+        @keyframes pulse-alive {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.3);
+                opacity: 0.8;
+            }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            /* reduced padding from 64px 32px to 40px 20px */
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 52px;
+            margin-bottom: 20px;
+            opacity: 0.4;
+        }
+
+        .empty-state h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .empty-state p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+        }
+
+        /* Utility */
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>⚡ Health Status Dashboard</h1>
+            <div class="timestamp">Last updated: <span id="updateTime">{{ updated_at }}</span></div>
+        </header>
+
+        <!-- Filters -->
+        <div class="filters-section">
+            <div class="filter-group">
+                <label for="feedFilter">📡 Feed</label>
+                <select id="feedFilter">
+                    <option value="">All Feeds</option>
+                    {% for feed in feed_names %}
+                    <option value="{{ feed }}">{{ feed }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="ipFilter">🖥️ Worker IP</label>
+                <select id="ipFilter">
+                    <option value="">All IPs</option>
+                    {% for ip in worker_ips %}
+                    <option value="{{ ip }}">{{ ip }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="activeOnly" />
+                <label for="activeOnly">✓ Show Active Only</label>
+            </div>
+        </div>
+
+        <!-- Feeds Grid -->
+        <div class="feeds-grid" id="feedsContainer">
+            {% if grouped %}
+                {% for feed_name, rows in grouped.items() %}
+                <div class="feed-card" data-feed="{{ feed_name }}">
+                    <div class="feed-header">
+                        <div class="feed-title">{{ feed_name }}</div>
+                    </div>
+                    <div class="feed-body">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Worker IP</th>
+                                    <th>Last Heartbeat</th>
+                                    <th>Time Ago</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in rows %}
+                                <tr class="status-row" data-ip="{{ row.ip }}" data-status="{{ row.status }}">
+                                    <td title="{{ row.ip }}"><code>{{ row.ip }}</code></td>
+                                    <td title="{{ row.last_heartbeat }}">{{ row.last_heartbeat }}</td>
+                                    <td>{{ row.ago }}</td>
+                                    <td class="status {{ row.status }}">
+                                        <span class="status-badge"></span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state" style="grid-column: 1 / -1;">
+                <div class="empty-state-icon">📊</div>
+                <h2>No Data Available</h2>
+                <p>No health entries found for the current week.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+      <script>
+        // ====================================================================
+        // FILTER LOGIC - Developer Friendly
+        // ====================================================================
+
+        const feedFilter = document.getElementById('feedFilter');
+        const ipFilter = document.getElementById('ipFilter');
+        const activeOnlyCheckbox = document.getElementById('activeOnly');
+        const feedsContainer = document.getElementById('feedsContainer');
+
+        function applyFilters() {
+            const selectedFeed = feedFilter.value;
+            const selectedIp = ipFilter.value;
+            const showActiveOnly = activeOnlyCheckbox.checked;
+
+            // Get all feed cards
+            const feedCards = feedsContainer.querySelectorAll('.feed-card');
+
+            let visibleCards = 0;
+            let visibleRows = 0;
+
+            feedCards.forEach(card => {
+                const feedName = card.dataset.feed;
+                const rows = card.querySelectorAll('.status-row');
+
+                // Check if feed matches filter
+                if (selectedFeed && feedName !== selectedFeed) {
+                    card.classList.add('hidden');
+                    return;
+                }
+
+                card.classList.remove('hidden');
+
+                // Filter rows within this card
+                let visibleRowsInCard = 0;
+                rows.forEach(row => {
+                    const rowIp = row.dataset.ip;
+                    const rowStatus = row.dataset.status;
+
+                    let showRow = true;
+
+                    // IP filter
+                    if (selectedIp && rowIp !== selectedIp) {
+                        showRow = false;
+                    }
+
+                    // Active only filter
+                    if (showActiveOnly && rowStatus !== 'alive') {
+                        showRow = false;
+                    }
+
+                    if (showRow) {
+                        row.classList.remove('hidden');
+                        visibleRowsInCard++;
+                        visibleRows++;
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+
+                // Hide card if all rows are filtered out
+                if (visibleRowsInCard === 0) {
+                    card.classList.add('hidden');
+                } else {
+                    card.classList.remove('hidden');
+                    visibleCards++;
+                }
+            });
+
+            // Show empty state if no results
+            if (visibleCards === 0 && feedCards.length > 0) {
+                showEmptyState();
+            } else if (document.querySelector('.empty-state')) {
+                document.querySelector('.empty-state').remove();
+            }
+        }
+
+        function showEmptyState() {
+            // Remove existing empty state if any
+            const existing = document.querySelector('.empty-state');
+            if (existing) existing.remove();
+
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.innerHTML = `
+                <div class="empty-state-icon">🔍</div>
+                <h2>No Results</h2>
+                <p>No entries match your filter criteria.</p>
+            `;
+            emptyState.style.gridColumn = '1 / -1';
+            feedsContainer.appendChild(emptyState);
+        }
+
+        // Attach event listeners
+        feedFilter.addEventListener('change', applyFilters);
+        ipFilter.addEventListener('change', applyFilters);
+        activeOnlyCheckbox.addEventListener('change', applyFilters);
+
+        // Auto-update timestamp every minute
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('updateTime').textContent = 
+                now.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+        }, 60000);
+    </script>
+</body>
+</html>
